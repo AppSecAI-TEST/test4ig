@@ -23,9 +23,6 @@
 %>
 
 <%
-   final EntityManagerFactory sessionFactory =
-      Persistence.createEntityManagerFactory("ru.simsonic.test4ig.persistence");
-
    String postCategory = "";
    String postProduct  = "";
    String postMinPrice = "";
@@ -36,6 +33,7 @@
    final boolean post = "POST".equals(request.getMethod());
    
    if(post) {
+      request.setCharacterEncoding("UTF-8");
       String category = request.getParameter("category");
       String product  = request.getParameter("product");
       String minPrice = request.getParameter("minprice");
@@ -61,7 +59,8 @@
    <link rel="stylesheet" type="text/css" href="catalog.css">
 </head>
 <body>
-   <h1>Прайс-лист</h1>
+   <div class=container">
+   <a class="homeLink" href="<%= request.getRequestURI() %>"><h2>Прайс-лист</h2></a>
    <form method="post" action="/test4ig/">
       <table>
          <tr>
@@ -91,12 +90,12 @@
             
          } else {
    %>
-      <table class="resulttable">
-         <tr>
-            <td>Категория:</td>
-            <td>Наименование:</td>
-            <td>Цена:</td>
-         </tr>
+            <table class="resulttable">
+               <tr>
+                  <td style="width: 20%;">Категория:</td>
+                  <td style="width: 65%;">Наименование:</td>
+                  <td style="width: 15%;">Цена, руб.:</td>
+               </tr>
    <%
             for(Product product : foundResults) {
                out.print("<tr>");
@@ -106,11 +105,10 @@
                out.print("</tr>");
                out.println();
             }
-   %>
-      </table>
-   <%
+            out.println("</table>");
          }
       }
    %>
+   </div>
 </body>
 </html>

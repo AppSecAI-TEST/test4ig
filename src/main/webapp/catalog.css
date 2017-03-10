@@ -9,11 +9,20 @@ and open the template in the editor.
 */
 
 body {
-   width:  1024px;
-   border: #666666 thin ridge;
-   padding:      10px;
+   width:        1000px;
+   border:       #666666 thin ridge;
    margin-left:  auto;
    margin-right: auto;
+}
+
+div.container {
+   background:   #cccccc;
+   padding:      10px;
+}
+
+a {
+   color: deepskyblue;
+   text-decoration: none;
 }
 
 .resulttable {
@@ -21,10 +30,9 @@ body {
 }
 
 .resulttable td {
-   width: 30%;
-   border: darkviolet;
+   color: #330033;
 }
 
-.notfound {
+p.notfound {
    color: red;
 }
