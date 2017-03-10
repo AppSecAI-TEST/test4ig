@@ -2,9 +2,11 @@ package ru.simsonic.test4ig;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import javax.persistence.Column;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -13,9 +15,21 @@ public class Product implements Serializable {
 
    @Id
    private Integer    id;
+   
+   @ManyToOne
    private Category   category;
+   
    private String     name;
    private BigDecimal price;
+   
+   public Product() {
+   }
+   
+   public Product(Category category, String name, BigDecimal price) {
+      this.category = category;
+      this.name     = name;
+      this.price    = price;
+   }
 
    public Integer getId() {
       return id;
@@ -23,5 +37,29 @@ public class Product implements Serializable {
 
    public void setId(Integer id) {
       this.id = id;
+   }
+   
+   public Category getCategory() {
+      return category;
+   }
+   
+   public void setCategory(Category category) {
+      this.category = category;
+   }
+   
+   public String getName() {
+      return name;
+   }
+   
+   public void setName(String name) {
+      this.name = name;
+   }
+   
+   public BigDecimal getPrice() {
+      return price;
+   }
+   
+   public void setPrice(BigDecimal price) {
+      this.price = price;
    }
 }

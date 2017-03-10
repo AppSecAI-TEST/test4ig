@@ -12,6 +12,13 @@ public class Category implements Serializable {
    @Id
    private Integer id;
    private String  name;
+   
+   public Category() {
+   }
+
+   public Category(String name) {
+      this.name = name;
+   }
 
    public Integer getId() {
       return id;
@@ -19,5 +26,9 @@ public class Category implements Serializable {
 
    public void setId(Integer id) {
       this.id = id;
+   }
+   
+   public String getName() {
+      return name;
    }
 }
