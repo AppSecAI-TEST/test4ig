@@ -4,13 +4,45 @@
     Author     : simsonic
 --%>
 
+<%@page import="java.util.ArrayList"%>
 <%@page import="java.util.List"%>
+<%@page import="javax.persistence.EntityManager"%>
+<%@page import="javax.persistence.Persistence"%>
+<%@page import="javax.persistence.EntityManagerFactory"%>
 <%@page import="ru.simsonic.test4ig.Product"%>
+
+<%!
+   EntityManagerFactory sessionFactory;
+   
+   public void jspInit() {
+      sessionFactory = Persistence.createEntityManagerFactory("ru.simsonic.test4ig.persistence");
+   }
+   public void jspDestroy() {
+      sessionFactory.close();
+   }
+%>
+
 <%
-   String postCategory = request.getParameter("category");
-   String postProduct  = request.getParameter("product");
-   String postMinPrice = request.getParameter("minprice");
-   String postMaxPrice = request.getParameter("maxprice");
+   String postCategory = "";
+   String postProduct  = "";
+   String postMinPrice = "";
+   String postMaxPrice = "";
+   
+   final boolean post = "POST".equals(request.getMethod());
+   
+   if(post) {
+      postCategory = request.getParameter("category");
+      postProduct  = request.getParameter("product");
+      postMinPrice = request.getParameter("minprice");
+      postMaxPrice = request.getParameter("maxprice");
+      
+      EntityManager entityManager = sessionFactory.createEntityManager();
+      entityManager.getTransaction().begin();
+      // entityManager.persist(new Event("Our very first event!", new Date()));
+      // entityManager.persist(new Event("A follow up event",     new Date()));
+      entityManager.getTransaction().commit();
+      entityManager.close();
+   }
 %>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
@@ -41,34 +73,42 @@
          </tr>
       </table>
    </form>
-   
-   <h3>Результаты поиска:</h3>
-   <%
-      int count = 10;
-      if(count > 0) {
-   %>
-   <table class="resulttable">
-      <tr>
-         <td>Категория:</td>
-         <td>Наименование:</td>
-         <td>Цена:</td>
-      </tr>
-      <%
-         List<Product> results = new ArrayList<>();
-         for(Product product : results) {
-      %>
-      <tr>
-         <td><%= "x" /* category */ %></td>
-         <td><%= "y" /* product  */ %></td>
-         <td><%= "z" /* price    */ %></td>
-      </tr>
-      <% } %>
-   </table>
-   
-   <%
-      } else
-         out.println("<p>Соответствий не найдено.</p>");
-   %>
 
+   <%
+      if(post) {
+   %>
+   
+      <h3>Результаты поиска:</h3>
+      <%
+         int count = 10;
+         if(count > 0) {
+      %>
+            <table class="resulttable">
+               <tr>
+                  <td>Категория:</td>
+                  <td>Наименование:</td>
+                  <td>Цена:</td>
+               </tr>
+      <%
+            List<Product> results = new ArrayList<>(); // TO DO HERE
+            for(Product product : results) {
+      %>
+               <tr>
+                  <td><%= product.getCategory().getName()    %></td>
+                  <td><%= product.getName()                  %></td>
+                  <td><%= product.getPrice().toPlainString() %></td>
+               </tr>
+      <%
+            }
+      %>
+            </table>
+      <%
+         } else {
+      %>
+            <p class = 'notfound'>Соответствий не найдено.</p>
+      <%
+         }
+      }
+   %>
 </body>
 </html>

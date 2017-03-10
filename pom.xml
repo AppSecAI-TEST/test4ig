@@ -25,8 +25,13 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
-			<version>5.2.8.Final</version>
-		</dependency>
+         <version>5.2.8.Final</version>
+      </dependency>
+      <!--dependency>
+         <groupId>org.hibernate</groupId>
+         <artifactId>hibernate-entitymanager</artifactId>
+         <version>5.2.8.Final</version>
+      </dependency-->
 	</dependencies>
 
 	<build>
@@ -52,6 +57,20 @@
 					<failOnMissingWebXml>false</failOnMissingWebXml>
 				</configuration>
 			</plugin>
+         
+         <!--plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.0.0</version>
+            <configuration>
+               <createDependencyReducedPom>false</createDependencyReducedPom>
+               <artifactSet>
+                  <includes>
+                     <include>org.hibernate:*</include>
+                  </includes>
+               </artifactSet>
+            </configuration>
+         </plugin-->
 
 			<!-- SOME KIND OF DARK MAGIC (FOR ME...) -->
 			<plugin>
