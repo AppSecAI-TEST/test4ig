@@ -12,6 +12,7 @@
       <class>ru.simsonic.test4ig.Product</class>
       
       <properties>
+         <!--
          <property name="hibernate.dialect"                 value="org.hibernate.dialect.MySQLDialect" />
          <property name="hibernate.connection.driver_class" value="com.mysql.jdbc.Driver" />
          <property name="hibernate.connection.url"          value="jdbc:mysql://methuselah.ru:3306/test4ig?useUnicode=true&characterEncoding=UTF-8" />
@@ -19,14 +20,12 @@
          <property name="hibernate.connection.password"     value="test4ig" />
          <property name="hibernate.show_sql"                value="true" />
          <property name="hibernate.format_sql"              value="true" />
+         -->
+         <property name="javax.persistence.jdbc.driver"     value="com.mysql.jdbc.Driver" />
+         <property name="javax.persistence.jdbc.url"        value="jdbc:mysql://methuselah.ru:3306/test4ig?useSSL=false" />
+         <property name="javax.persistence.jdbc.user"       value="test4ig" />
+         <property name="javax.persistence.jdbc.password"   value="test4ig" />
       </properties>
 
-      <!--exclude-unlisted-classes>false</exclude-unlisted-classes-->
-      <!--properties> I DON'T KNOW! ©
-         <property name="javax.persistence.jdbc.driver"   value="com.mysql.jdbc.Driver" />
-         <property name="javax.persistence.jdbc.url"      value="jdbc:mysql://methuselah.ru:3306/test4ig" />
-         <property name="javax.persistence.jdbc.user"     value="test4ig" />
-         <property name="javax.persistence.jdbc.password" value="test4ig" />
-      </properties-->
    </persistence-unit>
 </persistence>

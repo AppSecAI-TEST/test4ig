@@ -9,39 +9,46 @@
 <%@page import="javax.persistence.EntityManager"%>
 <%@page import="javax.persistence.Persistence"%>
 <%@page import="javax.persistence.EntityManagerFactory"%>
+<%@page import="ru.simsonic.test4ig.DAO.ShopDAO"%>
 <%@page import="ru.simsonic.test4ig.Product"%>
 
 <%!
-   EntityManagerFactory sessionFactory;
-   
    public void jspInit() {
-      sessionFactory = Persistence.createEntityManagerFactory("ru.simsonic.test4ig.persistence");
+      ShopDAO.init();
    }
+
    public void jspDestroy() {
-      sessionFactory.close();
+      ShopDAO.close();
    }
 %>
 
 <%
+   final EntityManagerFactory sessionFactory =
+      Persistence.createEntityManagerFactory("ru.simsonic.test4ig.persistence");
+
    String postCategory = "";
    String postProduct  = "";
    String postMinPrice = "";
    String postMaxPrice = "";
+      
+   final List<Product> foundResults = new ArrayList<>();
    
    final boolean post = "POST".equals(request.getMethod());
    
    if(post) {
-      postCategory = request.getParameter("category");
-      postProduct  = request.getParameter("product");
-      postMinPrice = request.getParameter("minprice");
-      postMaxPrice = request.getParameter("maxprice");
+      String category = request.getParameter("category");
+      String product  = request.getParameter("product");
+      String minPrice = request.getParameter("minprice");
+      String maxPrice = request.getParameter("maxprice");
+
+      // Magic
+      foundResults.addAll(ShopDAO.runSearch(category, product, minPrice, maxPrice));
       
-      EntityManager entityManager = sessionFactory.createEntityManager();
-      entityManager.getTransaction().begin();
-      // entityManager.persist(new Event("Our very first event!", new Date()));
-      // entityManager.persist(new Event("A follow up event",     new Date()));
-      entityManager.getTransaction().commit();
-      entityManager.close();
+      // This should be returned into form's fields
+      postCategory = null != category ? category : "";
+      postProduct  = null != product  ? product  : "";
+      postMinPrice = null != minPrice ? minPrice : "";
+      postMaxPrice = null != maxPrice ? maxPrice : "";
    }
 %>
 
@@ -65,10 +72,10 @@
             <td></td>
          </tr>
          <tr>
-            <td><input id="category" name="category" type="text"               value="<%= postCategory != null ? postCategory : "" %>" /></td>
-            <td><input id="product"  name="product"  type="text"               value="<%= postProduct  != null ? postProduct  : "" %>" /></td>
-            <td><input id="minprice" name="minprice" type="number" step="0.01" value="<%= postMinPrice != null ? postMinPrice : "" %>" /></td>
-            <td><input id="maxprice" name="maxprice" type="number" step="0.01" value="<%= postMaxPrice != null ? postMaxPrice : "" %>" /></td>
+            <td><input id="category" name="category" type="text"               value="<%= postCategory %>" /></td>
+            <td><input id="product"  name="product"  type="text"               value="<%= postProduct  %>" /></td>
+            <td><input id="minprice" name="minprice" type="number" step="0.01" value="<%= postMinPrice %>" /></td>
+            <td><input id="maxprice" name="maxprice" type="number" step="0.01" value="<%= postMaxPrice %>" /></td>
             <td><input id="submit"                   type="submit"             value="Найти" /></td>
          </tr>
       </table>
@@ -76,37 +83,32 @@
 
    <%
       if(post) {
-   %>
-   
-      <h3>Результаты поиска:</h3>
-      <%
-         int count = 10;
-         if(count > 0) {
-      %>
-            <table class="resulttable">
-               <tr>
-                  <td>Категория:</td>
-                  <td>Наименование:</td>
-                  <td>Цена:</td>
-               </tr>
-      <%
-            List<Product> results = new ArrayList<>(); // TO DO HERE
-            for(Product product : results) {
-      %>
-               <tr>
-                  <td><%= product.getCategory().getName()    %></td>
-                  <td><%= product.getName()                  %></td>
-                  <td><%= product.getPrice().toPlainString() %></td>
-               </tr>
-      <%
-            }
-      %>
-            </table>
-      <%
+         
+         out.println("<h3>Результаты поиска:</h3>");
+         
+         if(foundResults.isEmpty()) {
+            out.println("<p class='notfound'>Соответствий не найдено.</p>");
+            
          } else {
-      %>
-            <p class = 'notfound'>Соответствий не найдено.</p>
-      <%
+   %>
+      <table class="resulttable">
+         <tr>
+            <td>Категория:</td>
+            <td>Наименование:</td>
+            <td>Цена:</td>
+         </tr>
+   <%
+            for(Product product : foundResults) {
+               out.print("<tr>");
+               out.print("<td>" + product.getCategory().getName()    + "</td>");
+               out.print("<td>" + product.getName()                  + "</td>");
+               out.print("<td>" + product.getPrice().toPlainString() + "</td>");
+               out.print("</tr>");
+               out.println();
+            }
+   %>
+      </table>
+   <%
          }
       }
    %>

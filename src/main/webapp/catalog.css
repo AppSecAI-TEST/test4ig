@@ -24,3 +24,7 @@ body {
    width: 30%;
    border: darkviolet;
 }
+
+.notfound {
+   color: red;
+}
