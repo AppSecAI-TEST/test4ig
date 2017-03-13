@@ -10,7 +10,7 @@
 <%@page import="javax.persistence.Persistence"%>
 <%@page import="javax.persistence.EntityManagerFactory"%>
 <%@page import="ru.simsonic.test4ig.DAO.ShopDAO"%>
-<%@page import="ru.simsonic.test4ig.Product"%>
+<%@page import="ru.simsonic.test4ig.Entities.Product"%>
 
 <%!
    public void jspInit() {
@@ -23,17 +23,22 @@
 %>
 
 <%
-   String postCategory = "";
-   String postProduct  = "";
-   String postMinPrice = "";
-   String postMaxPrice = "";
    int    pageSize     = ShopDAO.DEFAULT_PAGE_SIZE;
    int    pageNumber   = 1;
    int    pagesCount   = 1;
    int    totalFound   = 0;
    
+   // Заполнители формы использованными ранее значениями
+   String postCategory = "";
+   String postProduct  = "";
+   String postMinPrice = "";
+   String postMaxPrice = "";
+   
    // Контейнер с результатами поиска
    List<Product> foundResults = new ArrayList<>();
+   
+   // Описание внутренней ошибки
+   Throwable searchException = null;
    
    // Форма должна быть передана только через POST, поэтому, если метод отличается,
    // мы не будем искать результаты.
@@ -41,10 +46,14 @@
    
    if(post) {
       request.setCharacterEncoding("UTF-8");
-      String category = request.getParameter("category");
-      String product  = request.getParameter("product");
-      String minPrice = request.getParameter("minprice");
-      String maxPrice = request.getParameter("maxprice");
+      postCategory = request.getParameter("category");
+      postProduct  = request.getParameter("product");
+      postMinPrice = request.getParameter("minprice");
+      postMaxPrice = request.getParameter("maxprice");
+      postCategory = null != postCategory ? postCategory : "";
+      postProduct  = null != postProduct  ? postProduct  : "";
+      postMinPrice = null != postMinPrice ? postMinPrice : "";
+      postMaxPrice = null != postMaxPrice ? postMaxPrice : "";
       
       // Определение размера страницы результатов
       try {
@@ -64,7 +73,14 @@
       }
       
       // Magic
-      foundResults.addAll(ShopDAO.runSearch(category, product, minPrice, maxPrice));
+      try {
+         foundResults.addAll(ShopDAO.runSearch(postCategory, postProduct, postMinPrice, postMaxPrice));
+      
+      } catch (IllegalArgumentException ex) {
+         // Допустимое для вывода пользователю сообщение
+         searchException = ex;
+      }
+      
       totalFound = foundResults.size();
       
       // Вычисление числа страниц и показываемых результатов
@@ -81,12 +97,6 @@
          pageNumber   = 1;
          pagesCount   = 1;
       }
-      
-      // Заполнители формы использованными ранее значениями
-      postCategory = null != category ? category : "";
-      postProduct  = null != product  ? product  : "";
-      postMinPrice = null != minPrice ? minPrice : "";
-      postMaxPrice = null != maxPrice ? maxPrice : "";
    }
 %>
 
@@ -127,7 +137,13 @@
          out.println("<h3>Результаты поиска:</h3>");
          
          if(foundResults.isEmpty()) {
-            out.println("<p class='notfound'>Соответствий не найдено.</p>");
+            
+            // Вывод ошибки поиска или факта отсутствия результатов
+            out.println("<p class='notfound'>");
+            out.println(searchException != null
+               ? searchException.getMessage()
+               : "Соответствий не найдено.");
+            out.println("</p>");
             
          } else {
    %>
@@ -159,16 +175,13 @@
                <input type="hidden" name="product"  value="<%= postProduct  %>" />
                <input type="hidden" name="minprice" value="<%= postMinPrice %>" />
                <input type="hidden" name="maxprice" value="<%= postMaxPrice %>" />
+               <%-- Мы не будем передавать значение page в этой форме, тем самым сбрасывая номер страницы на 1 --%>
                <%
                   // Вывод списка разрешённых значений размеров страниц с результатами
-                  for(int availablePageSize : ShopDAO.AVAILABLE_PAGE_SIZES) {
-                     if(pageSize != availablePageSize) {
-               %>
-                     <input type="submit" name="pagesize" value="<%= availablePageSize %>" class="pageButton" />
-               <%
-                     } else
-                        out.print(pageSize);
-                  }
+                  for(int availablePS : ShopDAO.AVAILABLE_PAGE_SIZES)
+                     out.print(pageSize != availablePS
+                        ? "<input type=\"submit\" name=\"pagesize\" value=\"" + availablePS + "\" class=\"pageButton\" />"
+                        : pageSize);
                %>
             </form></td>
             <%-- Переключатели номеров страниц --%>
@@ -180,14 +193,10 @@
                <input type="hidden" name="maxprice" value="<%= postMaxPrice %>" />
                <input type="hidden" name="pagesize" value="<%= pageSize     %>" />
                <%
-                  for(int availablePageNumber = 1; availablePageNumber <= pagesCount; availablePageNumber += 1) {
-                     if(pageNumber != availablePageNumber) {
-               %>
-                     <input type="submit" name="page" value="<%= availablePageNumber %>" class="pageButton" />
-               <%
-                     } else
-                        out.print(pageNumber);
-                  }
+                  for(int availablePN = 1; availablePN <= pagesCount; availablePN += 1)
+                     out.print(pageNumber != availablePN
+                        ? "<input type=\"submit\" name=\"page\" value=\"" + availablePN + "\" class=\"pageButton\" />"
+                        : pageNumber);
                %>
             </form></td>
             

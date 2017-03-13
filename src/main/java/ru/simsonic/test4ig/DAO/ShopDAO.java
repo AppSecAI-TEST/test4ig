@@ -7,7 +7,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
-import ru.simsonic.test4ig.Product;
+import ru.simsonic.test4ig.Entities.Product;
 
 public class ShopDAO {
    public static final int[] AVAILABLE_PAGE_SIZES = { 5, 10, 20, 50, 100, 200, };
@@ -35,7 +35,12 @@ public class ShopDAO {
       return sessionFactory;
    }
    
-   public static List<Product> runSearch(String category, String product, String minPrice, String maxPrice) {
+   public static List<Product> runSearch(String category, String product, String minPrice, String maxPrice) throws IllegalArgumentException {
+      
+      // Согласно тексту задания, хотя бы одно поле поиска должно быть указано.
+      // Imho, эту проверку можно и опустить для "поиска всего" пустой формой.
+      if("".equals(category) && "".equals(product) && "".equals(minPrice) && "".equals(maxPrice))
+         throw new IllegalArgumentException("Заполните хотя бы одно поле формы поиска.");
       
       try {
          final EntityManager       session = sessionFactory.createEntityManager();
@@ -47,15 +52,14 @@ public class ShopDAO {
             .setParameter("category", category + "%")
             .setParameter("name",     product  + "%")
             .setParameter("minPrice", toBigDecimal(minPrice, false))
-            .setParameter("maxPrice", toBigDecimal(maxPrice, true))
-            // .setFirstResult(0)
-            // .setMaxResults(50)
-               ;
+            .setParameter("maxPrice", toBigDecimal(maxPrice, true));
          
          final List<Product> result = query.getResultList();
          session.close();
          return result;
-         
+      
+      } catch (IllegalArgumentException ex) {
+         throw ex;
       } catch (Throwable ex) {
          System.err.println("Has EntityManagerFactory been really closed?!?: " + ex);
       }
@@ -64,13 +68,15 @@ public class ShopDAO {
       return Collections.EMPTY_LIST;
    }
    
-   private static BigDecimal toBigDecimal(String value, boolean higher) {
+   private static BigDecimal toBigDecimal(String value, boolean higher) throws IllegalArgumentException {
       try {
          return new BigDecimal(value);
       } catch(NumberFormatException ex) {
-         return higher
-            ? BigDecimal.valueOf(Double.MAX_VALUE)
-            : BigDecimal.ZERO;
+         if("".equals(value))
+            return higher
+               ? BigDecimal.valueOf(Double.MAX_VALUE)
+               : BigDecimal.ZERO;
+         throw new IllegalArgumentException("Некорректное значение цены: " + value);
       }
    }
 }

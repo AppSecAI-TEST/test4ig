@@ -8,8 +8,8 @@
       
       <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
       
-      <class>ru.simsonic.test4ig.Category</class>
-      <class>ru.simsonic.test4ig.Product</class>
+      <class>ru.simsonic.test4ig.Entities.Category</class>
+      <class>ru.simsonic.test4ig.Entities.Product</class>
       
       <properties>
          <!--

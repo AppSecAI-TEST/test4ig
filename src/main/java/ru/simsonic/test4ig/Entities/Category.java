@@ -1,4 +1,4 @@
-package ru.simsonic.test4ig;
+package ru.simsonic.test4ig.Entities;
 
 import java.io.Serializable;
 

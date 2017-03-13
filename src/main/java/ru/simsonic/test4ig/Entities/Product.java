@@ -1,8 +1,7 @@
-package ru.simsonic.test4ig;
+package ru.simsonic.test4ig.Entities;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import javax.persistence.Column;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
