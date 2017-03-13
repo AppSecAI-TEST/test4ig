@@ -109,7 +109,6 @@
    <link rel="stylesheet" type="text/css" href="catalog.css">
 </head>
 <body>
-   <div class=container">
    <a class="homeLink" href="<%= request.getRequestURI() %>"><h2>Прайс-лист</h2></a>
    <form method="post" action="<%= request.getRequestURI() %>">
       <table>
@@ -205,6 +204,5 @@
          }
       }
    %>
-   </div>
 </body>
 </html>

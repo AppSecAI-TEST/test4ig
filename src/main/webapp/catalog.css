@@ -16,18 +16,13 @@ body {
    padding:      10px;
 }
 
-div.container {
-   background:   #cccccc;
-   padding:      10px;
-}
-
 a {
    color: deepskyblue;
    text-decoration: none;
 }
 
 .resulttable {
-   width: 100%
+   width: 100%;
 }
 
 .resulttable td {
