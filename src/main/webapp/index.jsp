@@ -27,10 +27,13 @@
    String postProduct  = "";
    String postMinPrice = "";
    String postMaxPrice = "";
-   int pageSize = ShopDAO.DEFAULT_PAGE_SIZE;
+   int    pageSize     = ShopDAO.DEFAULT_PAGE_SIZE;
+   int    pageNumber   = 1;
+   int    pagesCount   = 1;
+   int    totalFound   = 0;
    
    // Контейнер с результатами поиска
-   final List<Product> foundResults = new ArrayList<>();
+   List<Product> foundResults = new ArrayList<>();
    
    // Форма должна быть передана только через POST, поэтому, если метод отличается,
    // мы не будем искать результаты.
@@ -46,24 +49,40 @@
       // Определение размера страницы результатов
       try {
          pageSize = Integer.parseInt(request.getParameter("pagesize"));
-         pageSize = Math.max(pageSize, ShopDAO.PAGE_SIZE_1);
-         pageSize = Math.min(pageSize, ShopDAO.PAGE_SIZE_3);
+         pageSize = Math.max(pageSize, ShopDAO.MINIMUM_PAGE_SIZE);
+         pageSize = Math.min(pageSize, ShopDAO.MAXIMUM_PAGE_SIZE);
       } catch(NumberFormatException ex) {
+         // Используем значение по умолчанию
       }
       
       // Определение номера первого результата
-      int pageNumb = ShopDAO.DEFAULT_PAGE_SIZE;
       try {
-         pageSize = Integer.parseInt(request.getParameter("page"));
-         pageSize = Math.max(pageSize, ShopDAO.PAGE_SIZE_1);
-         pageSize = Math.min(pageSize, ShopDAO.PAGE_SIZE_3);
+         pageNumber = Integer.parseInt(request.getParameter("page"));
+         pageNumber = Math.max(pageNumber, 1);
       } catch(NumberFormatException ex) {
+         // Используем значение по умолчанию
       }
-
+      
       // Magic
       foundResults.addAll(ShopDAO.runSearch(category, product, minPrice, maxPrice));
+      totalFound = foundResults.size();
       
-      // This should be returned into form's fields
+      // Вычисление числа страниц и показываемых результатов
+      if(totalFound > 0) {
+         // Общее количество полностью заполненных страниц и потенциально одной неполной в конце
+         pagesCount   = (totalFound / pageSize) + (totalFound % pageSize > 0 ? 1 : 0);
+         // Ограничиваем максимальный номер страницы
+         pageNumber   = Math.min(pageNumber, pagesCount);
+         // Удаляем элементы из списка, которые мы не хотим выводить
+         int first    = (pageNumber - 1) * pageSize;
+         int last     = Math.min(first + pageSize, totalFound);
+         foundResults = foundResults.subList(first, last);
+      } else {
+         pageNumber   = 1;
+         pagesCount   = 1;
+      }
+      
+      // Заполнители формы использованными ранее значениями
       postCategory = null != category ? category : "";
       postProduct  = null != product  ? product  : "";
       postMinPrice = null != minPrice ? minPrice : "";
@@ -99,6 +118,7 @@
             <td><input id="submit"                   type="submit"             value="Найти" /></td>
          </tr>
       </table>
+      <input type="hidden" name="pagesize" value="<%= pageSize %>" />
    </form>
 
    <%
@@ -113,9 +133,9 @@
    %>
             <table class="resulttable">
                <tr>
-                  <td style="width: 20%;">Категория:</td>
-                  <td style="width: 65%;">Наименование:</td>
-                  <td style="width: 15%;">Цена, руб.:</td>
+                  <td style="width: 20%;"><b>Категория:   </b></td>
+                  <td style="width: 65%;"><b>Наименование:</b></td>
+                  <td style="width: 15%;"><b>Цена, руб.:  </b></td>
                </tr>
    <%
             for(Product product : foundResults) {
@@ -128,38 +148,50 @@
             }
    %>
             </table>
-            <p>
-            Количество результатов на странице:
-            <form method="post" action="<%= request.getRequestURI() %>">
+            
+            <p>Всего найдено <%= totalFound %> товарных позиций.</p>
+            
+            <table width="100%"><tr>
+            <%-- Переключатели размеров страниц --%>
+            <td width="50%"><form method="post" action="<%= request.getRequestURI() %>">
+               Количество результатов на странице:<br />
                <input type="hidden" name="category" value="<%= postCategory %>" />
                <input type="hidden" name="product"  value="<%= postProduct  %>" />
                <input type="hidden" name="minprice" value="<%= postMinPrice %>" />
                <input type="hidden" name="maxprice" value="<%= postMaxPrice %>" />
                <%
-                  if(pageSize == ShopDAO.PAGE_SIZE_1)
-                     out.print(pageSize);
-                  else {
+                  // Вывод списка разрешённых значений размеров страниц с результатами
+                  for(int availablePageSize : ShopDAO.AVAILABLE_PAGE_SIZES) {
+                     if(pageSize != availablePageSize) {
                %>
-                     <input type="submit" name="pagesize" value="<%= ShopDAO.PAGE_SIZE_1 %>" class="pageButton" />
+                     <input type="submit" name="pagesize" value="<%= availablePageSize %>" class="pageButton" />
                <%
-                  }
-                  if(pageSize == ShopDAO.PAGE_SIZE_2)
-                     out.print(pageSize);
-                  else {
-               %>
-                     <input type="submit" name="pagesize" value="<%= ShopDAO.PAGE_SIZE_2 %>" class="pageButton" />
-               <%
-                  }
-                  if(pageSize == ShopDAO.PAGE_SIZE_3)
-                     out.print(pageSize);
-                  else {
-               %>
-                     <input type="submit" name="pagesize" value="<%= ShopDAO.PAGE_SIZE_3 %>" class="pageButton" />
-               <%
+                     } else
+                        out.print(pageSize);
                   }
                %>
-            </form>
-            </p>
+            </form></td>
+            <%-- Переключатели номеров страниц --%>
+            <td width="50%"><form method="post" action="<%= request.getRequestURI() %>">
+               Переход на страницу результатов:<br />
+               <input type="hidden" name="category" value="<%= postCategory %>" />
+               <input type="hidden" name="product"  value="<%= postProduct  %>" />
+               <input type="hidden" name="minprice" value="<%= postMinPrice %>" />
+               <input type="hidden" name="maxprice" value="<%= postMaxPrice %>" />
+               <input type="hidden" name="pagesize" value="<%= pageSize     %>" />
+               <%
+                  for(int availablePageNumber = 1; availablePageNumber <= pagesCount; availablePageNumber += 1) {
+                     if(pageNumber != availablePageNumber) {
+               %>
+                     <input type="submit" name="page" value="<%= availablePageNumber %>" class="pageButton" />
+               <%
+                     } else
+                        out.print(pageNumber);
+                  }
+               %>
+            </form></td>
+            
+            </tr><table>
    <%
          }
       }

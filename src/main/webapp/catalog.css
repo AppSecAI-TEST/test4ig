@@ -13,6 +13,7 @@ body {
    border:       #666666 thin ridge;
    margin-left:  auto;
    margin-right: auto;
+   padding:      10px;
 }
 
 div.container {

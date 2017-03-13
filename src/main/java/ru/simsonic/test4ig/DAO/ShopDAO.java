@@ -10,10 +10,10 @@ import javax.persistence.TypedQuery;
 import ru.simsonic.test4ig.Product;
 
 public class ShopDAO {
-   public static final int PAGE_SIZE_1       = 5;
-   public static final int PAGE_SIZE_2       = 20;
-   public static final int PAGE_SIZE_3       = 50;
-   public static final int DEFAULT_PAGE_SIZE = PAGE_SIZE_2;
+   public static final int[] AVAILABLE_PAGE_SIZES = { 5, 10, 20, 50, 100, 200, };
+   public static final int   MINIMUM_PAGE_SIZE    = 5;
+   public static final int   DEFAULT_PAGE_SIZE    = 10;
+   public static final int   MAXIMUM_PAGE_SIZE    = 200;
    
    private static EntityManagerFactory sessionFactory;
    
