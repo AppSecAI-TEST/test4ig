@@ -1,6 +1,7 @@
 package ru.simsonic.test4ig.DAO;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -10,10 +11,26 @@ import javax.persistence.TypedQuery;
 import ru.simsonic.test4ig.Entities.Product;
 
 public class ShopDAO {
+
+   /**
+    * Список размерностей страниц вывода результата.
+    */
    public static final int[] AVAILABLE_PAGE_SIZES = { 5, 10, 20, 50, 100, 200, };
-   public static final int   MINIMUM_PAGE_SIZE    = 5;
+
+   /**
+    * Минимально допустимое количество элементов на странице вывода результатов.
+    */
+   public static final int   MINIMUM_PAGE_SIZE    = Arrays.stream(AVAILABLE_PAGE_SIZES).min().getAsInt();
+   
+   /**
+    * Количество элементов на странице вывода результатов по умолчанию.
+    */
    public static final int   DEFAULT_PAGE_SIZE    = 10;
-   public static final int   MAXIMUM_PAGE_SIZE    = 200;
+   
+   /**
+    * Максимально допустимое количество элементов на странице вывода результатов.
+    */
+   public static final int   MAXIMUM_PAGE_SIZE    = Arrays.stream(AVAILABLE_PAGE_SIZES).max().getAsInt();
    
    private static EntityManagerFactory sessionFactory;
    
@@ -31,10 +48,28 @@ public class ShopDAO {
       sessionFactory.close();
    }
    
-   public static EntityManagerFactory getSessionFactory() {
-      return sessionFactory;
-   }
-   
+   /**
+    * Данный метод осуществляет поиск наименований, соответствующих заданным критериям.
+    * Хотя бы один параметр из category, product, minPrice и maxPrice должен быть задан.<br />
+    * 
+    * @param category Подстрока, с которой должно начинаться название категории. Если начинается с %, то
+    * подстрока может быть найдена в середине или в конце названия категории.
+    * Может быть пустой строкой (""). Не может быть null.<br />
+    * 
+    * @param product Подстрока, с которой должно начинаться название наименования. Если начинается с %, то
+    * подстрока может быть найдена в середине или в конце названия наименования.
+    * Может быть пустой строкой (""). Не может быть null.<br />
+    * 
+    * @param minPrice Минимальная цена (включительно), которой должен соответствовать товар.
+    * Может быть пустой строкой (""). Не может быть null.<br />
+    * 
+    * @param maxPrice Максимальная цена (включительно), которой должен соответствовать товар.
+    * Может быть пустой строкой (""). Не может быть null.<br />
+    * 
+    * @return Список найденных наименований, либо пустой список, если ничего не было найдено.
+    * @throws IllegalArgumentException При всех полях, заданных пустыми строками, или при ошибке конвертации
+    * price-полей во внутреннее числовое представление (BigDecimal).
+    */
    public static List<Product> runSearch(String category, String product, String minPrice, String maxPrice) throws IllegalArgumentException {
       
       // Согласно тексту задания, хотя бы одно поле поиска должно быть указано.
