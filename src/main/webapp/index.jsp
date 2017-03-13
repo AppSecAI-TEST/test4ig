@@ -27,9 +27,13 @@
    String postProduct  = "";
    String postMinPrice = "";
    String postMaxPrice = "";
-      
+   int pageSize = ShopDAO.DEFAULT_PAGE_SIZE;
+   
+   // Контейнер с результатами поиска
    final List<Product> foundResults = new ArrayList<>();
    
+   // Форма должна быть передана только через POST, поэтому, если метод отличается,
+   // мы не будем искать результаты.
    final boolean post = "POST".equals(request.getMethod());
    
    if(post) {
@@ -38,6 +42,23 @@
       String product  = request.getParameter("product");
       String minPrice = request.getParameter("minprice");
       String maxPrice = request.getParameter("maxprice");
+      
+      // Определение размера страницы результатов
+      try {
+         pageSize = Integer.parseInt(request.getParameter("pagesize"));
+         pageSize = Math.max(pageSize, ShopDAO.PAGE_SIZE_1);
+         pageSize = Math.min(pageSize, ShopDAO.PAGE_SIZE_3);
+      } catch(NumberFormatException ex) {
+      }
+      
+      // Определение номера первого результата
+      int pageNumb = ShopDAO.DEFAULT_PAGE_SIZE;
+      try {
+         pageSize = Integer.parseInt(request.getParameter("page"));
+         pageSize = Math.max(pageSize, ShopDAO.PAGE_SIZE_1);
+         pageSize = Math.min(pageSize, ShopDAO.PAGE_SIZE_3);
+      } catch(NumberFormatException ex) {
+      }
 
       // Magic
       foundResults.addAll(ShopDAO.runSearch(category, product, minPrice, maxPrice));
@@ -61,7 +82,7 @@
 <body>
    <div class=container">
    <a class="homeLink" href="<%= request.getRequestURI() %>"><h2>Прайс-лист</h2></a>
-   <form method="post" action="/test4ig/">
+   <form method="post" action="<%= request.getRequestURI() %>">
       <table>
          <tr>
             <td>Категория:</td>
@@ -105,7 +126,41 @@
                out.print("</tr>");
                out.println();
             }
-            out.println("</table>");
+   %>
+            </table>
+            <p>
+            Количество результатов на странице:
+            <form method="post" action="<%= request.getRequestURI() %>">
+               <input type="hidden" name="category" value="<%= postCategory %>" />
+               <input type="hidden" name="product"  value="<%= postProduct  %>" />
+               <input type="hidden" name="minprice" value="<%= postMinPrice %>" />
+               <input type="hidden" name="maxprice" value="<%= postMaxPrice %>" />
+               <%
+                  if(pageSize == ShopDAO.PAGE_SIZE_1)
+                     out.print(pageSize);
+                  else {
+               %>
+                     <input type="submit" name="pagesize" value="<%= ShopDAO.PAGE_SIZE_1 %>" class="pageButton" />
+               <%
+                  }
+                  if(pageSize == ShopDAO.PAGE_SIZE_2)
+                     out.print(pageSize);
+                  else {
+               %>
+                     <input type="submit" name="pagesize" value="<%= ShopDAO.PAGE_SIZE_2 %>" class="pageButton" />
+               <%
+                  }
+                  if(pageSize == ShopDAO.PAGE_SIZE_3)
+                     out.print(pageSize);
+                  else {
+               %>
+                     <input type="submit" name="pagesize" value="<%= ShopDAO.PAGE_SIZE_3 %>" class="pageButton" />
+               <%
+                  }
+               %>
+            </form>
+            </p>
+   <%
          }
       }
    %>

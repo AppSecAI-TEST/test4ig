@@ -6,11 +6,14 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import ru.simsonic.test4ig.Product;
 
 public class ShopDAO {
+   public static final int PAGE_SIZE_1       = 5;
+   public static final int PAGE_SIZE_2       = 20;
+   public static final int PAGE_SIZE_3       = 50;
+   public static final int DEFAULT_PAGE_SIZE = PAGE_SIZE_2;
    
    private static EntityManagerFactory sessionFactory;
    
