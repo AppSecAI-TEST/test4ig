@@ -22,7 +22,7 @@
          <property name="hibernate.format_sql"              value="true" />
          -->
          <property name="javax.persistence.jdbc.driver"     value="com.mysql.jdbc.Driver" />
-         <property name="javax.persistence.jdbc.url"        value="jdbc:mysql://methuselah.ru:3306/test4ig?useSSL=false" />
+         <property name="javax.persistence.jdbc.url"        value="jdbc:mysql://[тут.ваш.домен]:3306/test4ig?useSSL=false" />
          <property name="javax.persistence.jdbc.user"       value="test4ig" />
          <property name="javax.persistence.jdbc.password"   value="test4ig" />
       </properties>
